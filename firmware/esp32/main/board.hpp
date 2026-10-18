@@ -82,6 +82,9 @@ struct I2sMicConfig {
 struct I2sSpeakerConfig {
   bool enabled = false;
   int bclk = -1, ws = -1, dout = -1;
+  // I2S controller index. I2S0 is the only one with the PDM2PCM converter, so a
+  // board whose microphone is PDM must move the speaker to I2S1.
+  int port = 0;
 };
 
 // Which vendor bring-up table a CO5300 panel needs. The round 466x466 1.75"

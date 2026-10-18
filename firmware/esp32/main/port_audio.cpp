@@ -131,7 +131,7 @@ void I2sMic::task(void* arg) {
 // Speaker
 
 bool I2sSpeaker::begin(const I2sSpeakerConfig& cfg) {
-  i2s_chan_config_t chan = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
+  i2s_chan_config_t chan = I2S_CHANNEL_DEFAULT_CONFIG(cfg.port == 1 ? I2S_NUM_1 : I2S_NUM_0, I2S_ROLE_MASTER);
   chan.auto_clear = true;  // silence on underrun instead of repeating the last buffer
   if (i2s_new_channel(&chan, &tx_, nullptr) != ESP_OK) return false;
   i2s_std_config_t std_cfg = std_config(rate_, I2S_DATA_BIT_WIDTH_16BIT, cfg.bclk, cfg.ws, cfg.dout, -1);

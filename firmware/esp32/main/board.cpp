@@ -266,10 +266,14 @@ BoardConfig make() {
 #elif CONFIG_HG_BOARD_WS_KNOB_LCD_18
 // Waveshare ESP32-S3-Knob-Touch-LCD-1.8: round 360x360 LCD (ST77916, QSPI,
 // the same panel family as the 1.85C V2), CST816S touch, one I2S MEMS
-// microphone, rotary encoder, battery + DRV2605 haptics. The PCM5100A DAC
-// hangs off the board's secondary ESP32, so this port is display + microphone
-// only: replies are shown as text, never spoken. Pins: Waveshare wiki
-// schematic and the community ESPHome configs (nkinnan, patrick3399, KrX3D).
+// microphone, rotary encoder, battery + DRV2605 haptics. The PCM5100A DAC is
+// fed through a CH445P analog switch that selects between the secondary ESP32
+// (ESP32_I2S_DAC_*) and this S3 (S3_I2S_DAC_*): GPIO0 HIGH routes the S3 into
+// the DAC (Waveshare's 07_Audio_Test does exactly gpio_set_level(GPIO0, 1)).
+// GPIO0 is also the BOOT/TALK key with a pull-up, so the DAC listens to the S3
+// whenever TALK is released — holding it hands the DAC back to the ESP32.
+// Pins: Waveshare wiki schematic and the community ESPHome configs
+// (nkinnan, patrick3399, KrX3D).
 BoardConfig make() {
   BoardConfig b{};
   b.name = kBoardName;
@@ -290,6 +294,9 @@ BoardConfig make() {
   b.lcd.spi_mhz = 80;
   b.i2c = {11, 12, 400000};
   b.mic = {true, 45, -1, 46, true};  // PDM mic: CLK 45, DATA 46 (sck=45 sd=46, ws unused)
+  // PCM5100A through the CH445P (GPIO0 high = S3 side): BCK 39, WS 40, DOUT 41.
+  // port 1: I2S0 is held by the PDM microphone (PDM2PCM exists only on I2S0).
+  b.speaker = {true, 39, 40, 41, 1};
   b.touch.enabled = true;
   b.touch.controller = TouchController::Cst816;
   b.touch.addr = 0x15;
